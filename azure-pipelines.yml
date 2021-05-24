@@ -1,0 +1,40 @@
+jobs:
+- job: Build
+  displayName: Build Maven Project
+  pool:
+   name: default
+   demands: agent.os -equals Linux
+  steps:
+  - task: Maven@3
+    displayName: 'Maven Package'
+    inputs:
+      mavenPomFile: 'pom.xml'
+  - task: cURLUploader@2
+    displayName: 'Curl Upload'
+    inputs:
+      files: $(System.DefaultWorkingDirectory)/target/demo.war
+      authType: UserAndPass
+      url: SCP://121.36.13.207/
+      remotePath: /root/poc_test/demo.war
+      options: '-k'
+      username: 'root'
+      password: $(AWS_AGENT_PASSWD)
+- deployment: PushToAWS
+  displayName: DeployTask
+  environment: 
+    name: testEnv
+    resourceType: VirtualMachine
+    tags: HW207
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: Bash@3
+          inputs:
+            targetType: 'inline'
+            script: |
+              # Modify deployment script based on the app type
+              echo "Starting deployment script run"
+              sudo java -jar '/root/poc_test/demo.war'
+  dependsOn: Build
+  condition: succeeded()
