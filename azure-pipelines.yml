@@ -12,10 +12,10 @@ jobs:
   - task: cURLUploader@2
     displayName: 'Curl Upload'
     inputs:
-      files: $(System.DefaultWorkingDirectory)/target/demo.war
+      files: $(System.DefaultWorkingDirectory)/target/demo-0.0.1-SNAPSHOT.jar
       authType: UserAndPass
       url: SCP://121.36.13.207/
-      remotePath: /root/poc_test/demo.war
+      remotePath: /root/poc_test/demo-0.0.1-SNAPSHOT.jar
       options: '-k'
       username: 'root'
       password: $(AWS_AGENT_PASSWD)
@@ -35,6 +35,6 @@ jobs:
             script: |
               # Modify deployment script based on the app type
               echo "Starting deployment script run"
-              sudo java -jar '/root/poc_test/demo.war'
+              sudo java -jar '/root/poc_test/demo-0.0.1-SNAPSHOT.jar'
   dependsOn: Build
   condition: succeeded()
